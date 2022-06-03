@@ -63,7 +63,7 @@ class Game {
         return true
     }
 
-    fun generateMines(number: Int) {
+    fun setupGame(number: Int) {
         // make sure we don't create an infinite loop
         var minesToPlace = minOf(number, BOARD_SIZE)
 
@@ -112,7 +112,7 @@ class Game {
                 print(
                     when (field) {
                         FIELD_EMPTY_EXPLORED -> '/'
-                        FIELD_MARK_MINE, FIELD_MARK_EMPTY -> '*'
+                        FIELD_MARK_MINE, FIELD_MARK_EMPTY,
                         in MOD_MARKED + 1..MOD_MARKED + 8 -> '*'
                         in MOD_VISIBILITY + 1..MOD_VISIBILITY + 8 -> field % 10
                         else -> "."
@@ -178,16 +178,9 @@ class Game {
 
             if (validCoordinates(x, y)) {
                 if (inside(x, y)) {
-                    stack.add(x - 1 to y)
-                    stack.add(x + 1 to y)
-                    stack.add(x to y - 1)
-                    stack.add(x to y + 1)
-
-                    // this part added to correctly find all diagonally bordering info fields
-                    stack.add(x - 1 to y - 1)
-                    stack.add(x + 1 to y - 1)
-                    stack.add(x - 1 to y + 1)
-                    stack.add(x + 1 to y + 1)
+                    for ((xMod, yMod) in cellsAround) {
+                        stack.add(x + xMod to y + yMod)
+                    }
                 } else {
                     outside(x, y)
                 }
@@ -229,7 +222,7 @@ fun main() {
 
     // set up the board and show it
     print("How many mines do you want on the field?")
-    game.generateMines(readln().toInt())
+    game.setupGame(readln().toInt())
     game.printBoard()
 
     // main game loop
